@@ -3,32 +3,43 @@
 #Sobre o aplicativo
 
 Um aplicativo Android simples para monitorar cotações de criptomoedas usando a API do Mercado Bitcoin que exibe:
+
 -Preço atual
+
 -Valores de compra e venda
+
 -Maiores altas e baixas do dia
+
 -Volume negociado
 
 #Principais Arquivos Kotlin
 
 1. MercadoBitcoinServiceFactory.kt (Factory)
+
 Cria o serviço para chamadas à API:
 
 
 ![image](https://github.com/user-attachments/assets/ea463800-2ed3-44c2-aeb6-cc56fe452f5b)
 
-3. MainActivity.kt (Main)
+2. MainActivity.kt (Main)
+
+   
 Tela principal que controla o app:
 
 
 ![image](https://github.com/user-attachments/assets/3044c4b3-5b02-4787-a83d-1e5396212d03)
 
-5. TicketResponse.kt (Model)
+3. TicketResponse.kt (Model)
+
+   
 Modelo dos dados recebidos da API:
 
 
 ![image](https://github.com/user-attachments/assets/cf20e831-0bcd-4c86-b06f-41d898898715)
 
-7. MercadoBitcoinService.kt (Service)
+4. MercadoBitcoinService.kt (Service)
+
+
 Define como acessar a API:
 
 
