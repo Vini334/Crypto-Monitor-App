@@ -1,6 +1,7 @@
 package carreiras.com.github.cryptomonitor
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -10,6 +11,7 @@ import carreiras.com.github.cryptomonitor.service.MercadoBitcoinServiceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -20,11 +22,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Configurando a toolbar
+        // Configura toolbar e botão de atualização
+        // Faz chamadas à API e exibe os dados
+
         val toolbarMain: Toolbar = findViewById(R.id.toolbar_main)
         configureToolbar(toolbarMain)
 
-        // Configurando o botão Refresh
         val btnRefresh: Button = findViewById(R.id.btn_refresh)
         btnRefresh.setOnClickListener {
             makeRestCall()
@@ -47,22 +50,50 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val tickerResponse = response.body()
 
-                    // Atualizando os componentes TextView
-                    val lblValue: TextView = findViewById(R.id.lbl_value)
-                    val lblDate: TextView = findViewById(R.id.lbl_date)
+                    val quoteInfoLayout = findViewById<View>(R.id.component_quote_information)
+                    val lblValue: TextView = quoteInfoLayout.findViewById(R.id.lbl_value)
+                    val lblHigh: TextView = quoteInfoLayout.findViewById(R.id.lbl_high)
+                    val lblLow: TextView = quoteInfoLayout.findViewById(R.id.lbl_low)
+                    val lblBuy: TextView = quoteInfoLayout.findViewById(R.id.lbl_buy)
+                    val lblSell: TextView = quoteInfoLayout.findViewById(R.id.lbl_sell)
+                    val lblVol: TextView = quoteInfoLayout.findViewById(R.id.lbl_vol)
+                    val lblDate: TextView = quoteInfoLayout.findViewById(R.id.lbl_date)
 
-                    val lastValue = tickerResponse?.ticker?.last?.toDoubleOrNull()
-                    if (lastValue != null) {
-                        val numberFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
-                        lblValue.text = numberFormat.format(lastValue)
+                    val numberFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
+                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                    val btcFormat = DecimalFormat("#,##0.########")
+
+                    tickerResponse?.ticker?.let { ticker ->
+                        ticker.last?.toDoubleOrNull()?.let {
+                            lblValue.text = numberFormat.format(it)
+                        }
+
+                        ticker.high?.toDoubleOrNull()?.let {
+                            lblHigh.text = "Alta: ${numberFormat.format(it)}"
+                        }
+
+                        ticker.low?.toDoubleOrNull()?.let {
+                            lblLow.text = "Baixa: ${numberFormat.format(it)}"
+                        }
+
+                        ticker.buy?.toDoubleOrNull()?.let {
+                            lblBuy.text = "Compra: ${numberFormat.format(it)}"
+                        }
+
+                        ticker.sell?.toDoubleOrNull()?.let {
+                            lblSell.text = "Venda: ${numberFormat.format(it)}"
+                        }
+
+                        ticker.vol?.toDoubleOrNull()?.let {
+                            lblVol.text = "Vol: ${btcFormat.format(it)} BTC"
+                        }
+
+                        ticker.date?.let {
+                            lblDate.text = sdf.format(Date(it * 1000L))
+                        }
                     }
 
-                    val date = tickerResponse?.ticker?.date?.let { Date(it * 1000L) }
-                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-                    lblDate.text = sdf.format(date)
-
                 } else {
-                    // Trate o erro de resposta não bem-sucedida
                     val errorMessage = when (response.code()) {
                         400 -> "Bad Request"
                         401 -> "Unauthorized"
@@ -74,7 +105,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
             } catch (e: Exception) {
-                // Trate o erro de falha na chamada
                 Toast.makeText(this@MainActivity, "Falha na chamada: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
